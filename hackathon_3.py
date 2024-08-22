@@ -270,69 +270,6 @@ sns.boxplot(x='region', y='bmi', hue='sex', data=df)
 plt.title('BMI Distribution by Region and Gender')
 plt.show()
 
-import pandas as pd
-import numpy as np
-import statsmodels.api as sm
-
-# First, let's inspect our data types
-print(df.dtypes)
-
-# Convert 'sex' to numeric if it's not already
-df['sex_male'] = (df['sex'] == 'male').astype(int)
-
-# Ensure 'smoker_numeric' is of type int
-df['smoker_numeric'] = df['smoker_numeric'].astype(int)
-
-# Create dummy variables for region
-region_dummies = pd.get_dummies(df['region'], prefix='region', drop_first=True)
-
-# Combine all variables for the smoking regression
-X_smoke = df[['sex_male', 'age', 'bmi']].join(region_dummies)
-X_smoke = sm.add_constant(X_smoke)  # Add constant term
-
-# Ensure all columns in X_smoke are numeric
-X_smoke = X_smoke.astype(float)
-
-# Prepare y_smoke
-y_smoke = df['smoker_numeric'].astype(float)
-
-# Print data types after conversion
-print("\nData types after conversion:")
-print(X_smoke.dtypes)
-print("y_smoke dtype:", y_smoke.dtype)
-
-# Try the logistic regression
-try:
-    model_smoke = sm.Logit(y_smoke, X_smoke)
-    results_smoke = model_smoke.fit()
-    print("\nLogistic Regression Results for Smoking:")
-    print(results_smoke.summary())
-except Exception as e:
-    print("\nAn error occurred:", str(e))
-    print("X_smoke head:")
-    print(X_smoke.head())
-    print("\ny_smoke head:")
-    print(y_smoke.head())
-
-# Prepare data for BMI regression
-X_bmi = df[['sex_male', 'age', 'smoker_numeric']].join(region_dummies)
-X_bmi = sm.add_constant(X_bmi)
-X_bmi = X_bmi.astype(float)
-y_bmi = df['bmi'].astype(float)
-
-# Try the linear regression for BMI
-try:
-    model_bmi = sm.OLS(y_bmi, X_bmi)
-    results_bmi = model_bmi.fit()
-    print("\nLinear Regression Results for BMI:")
-    print(results_bmi.summary())
-except Exception as e:
-    print("\nAn error occurred in BMI regression:", str(e))
-    print("X_bmi head:")
-    print(X_bmi.head())
-    print("\ny_bmi head:")
-    print(y_bmi.head())
-
 """**Correlation Analysis:**
    - Strongest correlation (0.79) is between smoking status and charges.
    - Age and BMI have moderate positive correlations with charges (0.3 and 0.2 respectively).
@@ -349,16 +286,6 @@ except Exception as e:
    - Males generally have higher BMI, particularly in the Southeast.
    - Gender differences in smoking are statistically significant in the Southwest (p-value: 0.0219).
 
-**Regression Analysis for Smoking:**
-   - Being male increases the likelihood of smoking (coefficient: 0.3777, p-value: 0.006).
-   - Age and BMI don't significantly affect smoking probability.
-   - Southeast shows a positive but not statistically significant effect on smoking.
-
-**Regression Analysis for BMI:**
-   - Age is positively associated with BMI (coefficient: 0.0488, p-value: 0.000).
-   - Southeast region is strongly associated with higher BMI (coefficient: 4.1989, p-value: 0.000).
-   - Southwest also shows a significant positive effect on BMI.
-   - Smoking status doesn't significantly affect BMI.
 
 **Key Insights:**
 1. Smoking is the strongest predictor of higher insurance charges.
