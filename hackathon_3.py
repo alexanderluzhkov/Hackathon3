@@ -18,6 +18,7 @@ print(df.head().to_markdown(index=False, numalign="left", stralign="left"))
 # Print the column names and their data types
 print(df.info())
 
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -31,8 +32,8 @@ for col in ['sex', 'smoker', 'region']:
     print(f"\nColumn: {col}\n")
     print(df[col].value_counts().reset_index().rename(columns={'index':'Value', col: 'Count'}).to_markdown(index=False, numalign="left", stralign="left"))
 
-# One-hot encode categorical columns
-df_encoded = pd.get_dummies(df, columns=['sex', 'smoker', 'region'], drop_first=True)
+# One-hot encode categorical columns without dropping the first column
+df_encoded = pd.get_dummies(df, columns=['sex', 'smoker', 'region'], drop_first=False)
 
 # Compute the correlation matrix
 corr_matrix = df_encoded.corr()
@@ -42,9 +43,10 @@ print("\nCorrelation Matrix:\n")
 print(corr_matrix.round(2).to_markdown(numalign="left", stralign="left"))
 
 # Create a heatmap to visualize the correlation matrix
-plt.figure(figsize=(10, 8))
+plt.figure(figsize=(12, 10))
 sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=.5)
 plt.title('Correlation Heatmap')
+plt.tight_layout()
 plt.show()
 
 # Create subplots
